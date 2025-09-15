@@ -1,4 +1,5 @@
 import pygame
+import asyncio
 
 class Player_Win_Screen:
     def __init__(self, pong_game, message):
@@ -16,19 +17,6 @@ class Player_Win_Screen:
         self.subtitle_rect = self.subtitle.get_rect()
         self.subtitle_rect.centerx = self.screen.get_rect().centerx
         self.subtitle_rect.top = self.title_rect.bottom + 20
-
-    def show(self):
-        waiting_for_input = True
-
-        while waiting_for_input:
-            for event in pygame.event.get():
-                if (event.type == pygame.KEYDOWN):
-                    waiting_for_input = False
-
-            self.render()
-
-            # flip the back buffer to the display
-            pygame.display.flip()
 
     def render(self):
         pygame.draw.rect(self.screen, self.settings.bg_colour, self.screen.get_rect())

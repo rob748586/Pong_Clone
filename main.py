@@ -22,17 +22,12 @@ class Pong:
         self.screen = pygame.display.set_mode((1280, 720))
         self.settings = Settings()
 
-        self._initialize_game()
+        self.state = self.settings.SHOW_TITLE_SCREEN
+        self.title_screen = Title_Screen(self)
+        self.win_lose_screen = None
 
     def _initialize_game(self):
         """ Create Paddles and ball objects """
-        title_screen = Title_Screen(self)
-        title_screen.show()
-
-        # set the timer to update the AI Paddles prediction every 100ms
-        pygame.time.set_timer(self.settings.UPDATE_PREDICTION, 150)
-        pygame.time.set_timer(self.settings.BALL_START_MOVEMENT, 1000, 1)
-
         self.ball = Ball(self)
 
         # used to predict the path the ball will take by AI
@@ -52,23 +47,36 @@ class Pong:
         self.stats = Stats()
         self.score_board = ScoreBoard(self)
 
+        # set the timer to update the AI Paddles prediction every 100ms
+        pygame.time.set_timer(self.settings.UPDATE_PREDICTION, 150)
+        pygame.time.set_timer(self.settings.BALL_START_MOVEMENT, 1000, 1)
+
     async def play_game(self):
         """ The main loop for the pong game"""
         while True:
 
-            for n in range(self.settings.time_slices_count):
-                # handle input events
-                self._handle_input_events()
+            # handle input events
+            self._handle_input_events()
+            
+            if self.state == self.settings.SHOW_TITLE_SCREEN:
+                self.title_screen.render()
+               
+            if self.state == self.settings.GAME_SCREEN:
+                for n in range(self.settings.time_slices_count):
 
-                # perform game logic
-                self._perform_updates()
-                self._check_ball_collisions()
+                    # perform game logic
+                    self._perform_updates()
+                    self._check_ball_collisions()
 
-            # render graphics
-            self._draw_background()
-            self._render_sprites()
+                # render graphics
+                self._draw_background()
+                self._render_sprites()
 
-            self.score_board.render()
+                self.score_board.render()
+            
+            if self.state == self.settings.WIN_LOSE_SCREEN:
+                self.win_lose_screen.render()
+
 
             # flip the back buffer to the display
             pygame.display.flip()
@@ -86,6 +94,18 @@ class Pong:
             if event.type == pygame.KEYDOWN and \
                     event.key == pygame.K_ESCAPE:
                 sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if self.state == self.settings.SHOW_TITLE_SCREEN:
+                    self.state = self.settings.GAME_SCREEN
+                    self.title_screen = None
+                    self._initialize_game()
+
+
+                if self.state == self.settings.WIN_LOSE_SCREEN:
+                    self.state = self.settings.SHOW_TITLE_SCREEN
+                    self.title_screen = Title_Screen(self)
+                    self.win_lose_screen = None
 
             if event.type == self.settings.BALL_START_MOVEMENT:
                 self.ball.start_moving()
@@ -111,8 +131,8 @@ class Pong:
             pygame.time.set_timer(self.settings.BALL_START_MOVEMENT, 1000, 1)
 
             if self.stats.player2_score >= 9:
-                Player_Win_Screen(self, "You Lose!!").show()
-                self._initialize_game()
+                self.state = self.settings.WIN_LOSE_SCREEN
+                self.win_lose_screen = Player_Win_Screen(self, "You Lose!!")
 
 
         # Left play area on right side
@@ -123,8 +143,8 @@ class Pong:
             pygame.time.set_timer(self.settings.BALL_START_MOVEMENT, 1000, 1)
 
             if self.stats.player1_score >= 9:
-                Player_Win_Screen(self, "You Win!!").show()
-                self._initialize_game()
+                self.state = self.settings.WIN_LOSE_SCREEN
+                self.win_lose_screen = Player_Win_Screen(self, "You Win!!")
 
         # top and bottom boundaries
         if ball.test_for_boundary_collisions():

@@ -4,6 +4,11 @@ class Settings:
     """ Default settings for various classes in Pong clone. """
     def __init__(self):
         """ Initialise default values. """
+        # game states
+        self.SHOW_TITLE_SCREEN = 0,
+        self.GAME_SCREEN = 1,
+        self.WIN_LOSE_SCREEN = 2
+
         # bg defaults
         self.bg_colour = (0, 0, 0)
         self.boundary_colour = (55, 255, 55)
