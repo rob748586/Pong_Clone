@@ -48,7 +48,7 @@ class Pong:
         self.score_board = ScoreBoard(self)
 
         # set the timer to update the AI Paddles prediction every 100ms
-        pygame.time.set_timer(self.settings.UPDATE_PREDICTION, 150)
+        pygame.time.set_timer(self.settings.UPDATE_PREDICTION, 400)
         pygame.time.set_timer(self.settings.BALL_START_MOVEMENT, 1000, 1)
 
     async def play_game(self):
